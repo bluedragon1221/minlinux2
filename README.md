@@ -169,3 +169,9 @@ Boot the system with QEMU:
 qemu-system-x86_64 -kernel bzImage -initrd init.cpio
 ```
 
+---
+# Sources
+- https://www.youtube.com/watch?v=QlzoegSuIzg
+- https://github.com/damianoognissanti/bbl
+- https://blinry.org/tiny-linux
+- https://gist.github.com/bluedragon1221/a58b0e1ed4492b44aa530f4db0ffef85
