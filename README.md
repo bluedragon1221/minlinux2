@@ -11,10 +11,7 @@ Here we go!
 ## Setup files
 Create the basic directory structure for our minimal system:
 ```sh
-mkdir initfiles
-cd initfiles
-mkdir {bin,etc,dev,root,home}
-mkdir home/USERNAME
+mkdir -p initfiles/{bin,etc,dev,root,home/USERNAME}
 ```
 
 ## Busybox
@@ -111,7 +108,7 @@ Beware this is not bash! It's POSIX shell, which bash is based on. They're simil
 ## Compiling the kernel
 Clone the kernel source code:
 ```sh
-git clone --depth 1 --branch "v6.14" https://github.com/torvalds/linux
+git clone --depth 1 --branch "v6.15" https://github.com/torvalds/linux
 cd linux
 ```
 `--depth 1` makes it so we don't download the entire history with the clone. Since we're just compiling it, we don't need the history.
