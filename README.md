@@ -41,12 +41,14 @@ Set up configuration files that the system needs to boot and handle users.
 ### /etc/inittab
 ```
 tty1::respawn:/bin/login -f USERNAME
-::sysinit:mount -a
 ::sysinit:/bin/hostname -F /etc/hostname
+::sysinit:mount -a
+::sysinit:/bin/chown c /home/c
 ```
 This tells busybox's init to set the hostname and automatically log in as USERNAME on the first terminal.
 After setting your user's password, you can change the first line to `tty1::respawn:/bin/getty 38400 tty1` to require the user to log in.
 `mount -a` mounts everything in /etc/fstab
+`chown c /home/c` makes sure that the user can create, edit, and delete files in their home directory
 
 ### /etc/fstab
 ```
@@ -132,8 +134,8 @@ Here's the options to enable:
 - `General Setup --->`
   - `[*] Initial RAM filesystem and RAM disk (initramfs/initrd) support`, but disable the compression types (`gzip`, `bzip2`, `LZMA`, `XZ`, `LZO`, `LZ4`, `ZSTD`), as we're making an uncompressed initrd
   - `[*] Configure standard kernel features (expert users) --->`
-    - `[*] Enable support for printk`
     - `[*] Multiple users, groups and capabilities support`
+    - `[*] Enable support for printk`
 - `Device Drivers --->`
   - `Generic Driver Options --->`
     - `[*] Maintain a devtmpfs filesystem to mount at /dev`
@@ -159,9 +161,6 @@ find . | cpio -o -H newc --owner=+0:+0 > ../init.cpio
 ```
 - `newc` is the format that the kernel expects initrd file to be in. See [the kernel docs](https://docs.kernel.org/admin-guide/initrd.html#compressed-cpio-images) for more information
 - `--owner=+0:+0` makes it so the files are owned by UID 0 (root), and not our current user. Alternatively, we could `chown -R root initfiles/`, but then we would need `sudo` to edit them. This is a cleaner way.
-
-Note: home directory is owned by root because of `--owner=+0:+0`.
-This would usually be a big problem because the user can't modify files, but all changes are forgotten on reboot anyway, so it shouldn't matter
 
 ## Run it!
 Boot the system with QEMU:
