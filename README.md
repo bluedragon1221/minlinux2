@@ -1,3 +1,5 @@
+# Minimal Linux Guide 2.0
+
 Since writing my first guide on creating minimal linux, I've learned a lot and fixed several errors. Here's what's different:
 - Includes proper instructions for creating a user and automatically logging in as them
 - Uses a precompiled busybox (You can still compile it yourself if you want to)
@@ -46,26 +48,26 @@ This tells busybox's init to set the hostname and automatically log in as USERNA
 After setting your user's password, you can change the first line to `tty1::respawn:/bin/getty 38400 tty1` to require the user to log in.
 `mount -a` mounts everything in /etc/fstab
 
-### etc/fstab
+### /etc/fstab
 ```
 devtmpfs /dev devtmpfs mode=0755,nosuid 0 0
 ```
 This tells the system to mount a device filesystem at `/dev` so device files are available.
 
-### etc/hostname
+### /etc/hostname
 ```
 HOSTNAME
 ```
 Contains the system's hostname that gets set at boot.
 
-### etc/environment
+### /etc/environment
 ```sh
 PATH="/bin"
 ```
 This sets the PATH so the system can find our busybox programs.
 Later, you can put binaries in other paths, and separate them with colons here (ex. `PATH=/bin:/home/c/bin`)
 
-### etc/group
+### /etc/group
 ```
 root:x:0:
 tty:x:5:USERNAME
@@ -74,7 +76,7 @@ USERNAME:x:1030:
 Each line defines a group in the format `name:password:GID:members`.
 The tty group allows terminal access.
 
-### etc/passwd
+### /etc/passwd
 ```
 root:x:0:0:root:/root:/bin/sh
 USERNAME:x:1030:1030::/home/USERNAME:/bin/sh
@@ -82,7 +84,7 @@ USERNAME:x:1030:1030::/home/USERNAME:/bin/sh
 Format: `username:password:UID:GID:description:home:shell`.
 The x means passwords are in /etc/shadow.
 
-### etc/shadow
+### /etc/shadow
 Define user passwords:
 ```
 USERNAME:PASSWORD HASH:20005::::::
@@ -94,7 +96,7 @@ When writing this file, leave the password hash blank.
 Once you boot the vm for the first time, use the `mkpasswd` command (part of busybox) to generate your password hash.
 Then go back and update it in initfiles/etc/shadow.
 
-### home/USERNAME/.profile
+### /home/USERNAME/.profile
 You can put any shell customization here:
 ```
 PS1='[\[\e[32m\]\u@\h \W\[\e[0m\]]\$ '
@@ -158,14 +160,12 @@ find . | cpio -o -H newc --owner=+0:+0 > ../init.cpio
 - `newc` is the format that the kernel expects initrd file to be in. See [the kernel docs](https://docs.kernel.org/admin-guide/initrd.html#compressed-cpio-images) for more information
 - `--owner=+0:+0` makes it so the files are owned by UID 0 (root), and not our current user. Alternatively, we could `chown -R root initfiles/`, but then we would need `sudo` to edit them. This is a cleaner way.
 
+Note: home directory is owned by root because of `--owner=+0:+0`.
+This would usually be a big problem because the user can't modify files, but all changes are forgotten on reboot anyway, so it shouldn't matter
+
 ## Run it!
 Boot the system with QEMU:
 ```sh
 qemu-system-x86_64 -kernel bzImage -initrd init.cpio
 ```
-
----
-
-## Known Issues
-- home directory is owned by root because of `--owner=+0:+0`
 
