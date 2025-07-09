@@ -142,7 +142,6 @@ Here's the options to enable:
     - `[ ] Legacy (BSD) PTY support`
 - `Executable File Formats --->`
   - `[*] Kernel support for ELF binaries`
-  - `[*] Kernel support for scripts starting with #!`
 
 Now build it, and copy the resulting file:
 ```sh

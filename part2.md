@@ -4,14 +4,14 @@ Previously, all changes were discarded on reboot
 
 Enable kernel support for block devices and filesystems:
 - `[*] Enable the block layer --->`
+  - `[ ] Legacy autoloading support`
 - `Device Drivers --->`
   - `[*] PCI Support --->`
   - `SCSI device Support --->`
     - `[*] SCSI device support`
     - `[*] SCSI disk support`
   - `[*] Serial ATA and Parallel ATA drivers (libata) --->`
-    - `[*] ATA SFF support (for legacy IDE and PATA)`
-    - `[*] ATA MBDMA support`
+    - (keep `ATA SFF support` and `ATA MBDMA support` enabled)
     - `[*] Intel ESB, ICH, PIIX3, PIIX4, PATA/SATA support`
 - `File systems --->`
   - `[*] The Extended 4 (ext4) filesystem`
