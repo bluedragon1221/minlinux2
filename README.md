@@ -165,6 +165,17 @@ qemu-system-x86_64 -kernel bzImage -initrd init.cpio
 ```
 
 ---
+
+# Extensions
+- [`part2`](./part2.md): Set up a persistent home directory
+- [`part3`](./part3.md): Set up a layman's package manager and install cowsay
+
+## Contributing
+Is there something else that you did with your `minlinux` that you want to share?
+Write a guide for it! Open a PR! I'll be happy to accept it, after I ensure that it works.
+
+---
+
 # Sources
 - https://www.youtube.com/watch?v=QlzoegSuIzg
 - https://github.com/damianoognissanti/bbl
