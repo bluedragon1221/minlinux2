@@ -27,10 +27,15 @@ mv busybox initfiles/bin/busybox
 # install busybox
 cd initfiles/bin
 ./busybox --list | xargs -n1 -P8 ln -s busybox
-chmod +s su
 ```
 - Busybox is a multi-call binary. This means that when you symlink many programs to it, it will figure out which one is being called and run that one. Our command simply loops through every busybox program, and creates a symlink to busybox for it. See [`man 1 busybox`](https://man.archlinux.org/man/busybox.1.en#USAGE) for more information.
-- `su` needs special permissions because its job is to elevate permissions from a user to root, which most programs aren't allowed to do.
+
+`su` and `sudo` need special permissions because they elevate permissions from a user to root, which most programs aren't allowed to do:
+```sh
+cp busybox su
+cp busybox sudo
+chmod +s su sudo
+```
 
 ## `etc` files
 Set up configuration files that the system needs to boot and handle users.
@@ -39,13 +44,14 @@ Set up configuration files that the system needs to boot and handle users.
 ```
 tty1::respawn:/bin/login -f USERNAME
 ::sysinit:/bin/hostname -F /etc/hostname
-::sysinit:mount -a
-::sysinit:/bin/chown c /home/c
+::sysinit:/bin/mount -a
+::sysinit:/bin/chown USERNAME /home/USERNAME
 ```
 This tells busybox's init to set the hostname and automatically log in as USERNAME on the first terminal.
 After setting your user's password, you can change the first line to `tty1::respawn:/bin/getty 38400 tty1` to require the user to log in.
-`mount -a` mounts everything in /etc/fstab
-`chown c /home/c` makes sure that the user can create, edit, and delete files in their home directory
+
+- `mount -a` mounts everything in /etc/fstab
+- `chown USERNAME /home/USERNAME` makes sure that USERNAME can create, edit, and delete files in their home directory
 
 ### /etc/fstab
 ```
@@ -103,12 +109,12 @@ PS1='[\[\e[32m\]\u@\h \W\[\e[0m\]]\$ '
 alias ls="ls --color=auto"
 alias ll="ls -l"
 ```
-Beware this is not bash! It's POSIX shell, which bash is based on. They're similar, but many features are missing from bash.
+Beware this is not bash! It's POSIX shell, which bash is based on. They're similar, but many features in bash are not in POSIX shell.
 
 ## Compiling the kernel
 Clone the kernel source code:
 ```sh
-git clone --depth 1 --branch "v6.15" https://github.com/torvalds/linux
+git clone --depth 1 --branch "v6.19" https://github.com/torvalds/linux
 cd linux
 ```
 `--depth 1` makes it so we don't download the entire history with the clone. Since we're just compiling it, we don't need the history.
@@ -138,15 +144,19 @@ Here's the options to enable:
     - `[*] Maintain a devtmpfs filesystem to mount at /dev`
   - `Character Devices --->`
     - `[*] Enable TTY`
-    - `[ ] Unix98 PTY support`
-    - `[ ] Legacy (BSD) PTY support`
+      - `[*] Virtual terminal`
+        - `[ ] Enable character translations in console`
+        - `[*] Support for console on virtual terminal`
+      - `[ ] Unix98 PTY support`
+      - `[ ] Legacy (BSD) PTY support`
 - `Executable File Formats --->`
   - `[*] Kernel support for ELF binaries`
 
 Now build it, and copy the resulting file:
 ```sh
 make -j$(nproc)
-cp arch/x86/boot/bzImage ..
+cd ..
+cp linux/arch/x86/boot/bzImage .
 ```
 
 ## Create Initrd
@@ -163,6 +173,8 @@ Boot the system with QEMU:
 ```sh
 qemu-system-x86_64 -kernel bzImage -initrd init.cpio
 ```
+
+(For NixOS, use `nix-shell -p qemu` to use qemu without installing it)
 
 ---
 
